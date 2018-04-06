@@ -1,32 +1,19 @@
-FROM alpine:edge
-MAINTAINER Derren Desouza <derrend@yahoo.co.uk>
-RUN apk --no-cache --update add libstdc++ openssl boost-thread boost-system boost-filesystem boost-program_options alpine-sdk file openssl-dev boost-dev \
-    ##
-    && cd \
-    && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz \
-    && tar -xvf db-4.8.30.NC.tar.gz \
-    && cd db-4.8.30.NC \
-    && sed -i.old 's/__atomic_compare_exchange/__atomic_compare_exchange_db/' dbinc/atomic.h \
-    && cd build_unix \
-    && ../dist/configure --disable-shared --enable-cxx --disable-replication --with-pic \
-    && make libdb_cxx-4.8.a libdb-4.8.a \
-    && make install_lib install_include \    
-    && export BDB_LIB_PATH=/usr/local/BerkeleyDB.4.8/lib \
-    && export BDB_INCLUDE_PATH=/usr/local/BerkeleyDB.4.8/include \
-    ##
-    && cd \
-    && git clone -b master --depth 1 https://github.com/zcoinofficial/zcoin.git \
-    && cd zcoin/src \
-    && sed -i 's/-l boost_thread/-l boost_thread-mt/g' makefile.unix \
-    && make -f makefile.unix USE_UPNP=- RELEASE=1 \
-    && strip zcoind \
-    && mv zcoind /usr/local/bin \
-    ##
-    && cd \
-    && rm -rf * \
-    && apk del alpine-sdk file openssl-dev boost-dev \
-    && rm -rf /var/cache/apk/*
+FROM ubuntu
+
+RUN apt-get update \
+  && apt-get install -qq -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-all-dev software-properties-common git \
+  && add-apt-repository ppa:bitcoin/bitcoin \
+  && apt-get update \
+  && apt-get install -qq -y libdb4.8-dev libdb4.8++-dev libzmq3-dev libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev \
+  && git clone --depth=1 https://github.com/zcoinofficial/zcoin \
+  && cd zcoin \
+  && ./autogen.sh \
+  && ./configure --without-gui --without-upnp --disable-tests \
+  && make -j3 \
+  && make install-strip \
+  && apt-get remove -qq -y libdb4.8-dev libdb4.8++-dev libminiupnpc-dev libzmq3-dev qttools5-dev qttools5-dev-tools libprotobuf-dev libqrencode-dev build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-all-dev software-properties-common git \
+  && rm -rf /var/lib/apt/lists/*
 
 VOLUME ["/root/.zcoin"]
 ENTRYPOINT ["/usr/local/bin/zcoind"]
-EXPOSE 18888 8888 18168 8168
+EXPOSE 18888 8888 18168 8168​
