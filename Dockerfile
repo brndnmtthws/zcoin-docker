@@ -11,6 +11,7 @@ RUN apt-get update \
   && ./configure --without-gui --without-upnp --disable-tests \
   && make -j3 \
   && make install-strip \
+  && cd .. && rm -rf zcoin \
   && apt-get remove -qq -y libdb4.8-dev libdb4.8++-dev libminiupnpc-dev libzmq3-dev qttools5-dev qttools5-dev-tools libprotobuf-dev libqrencode-dev build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-all-dev software-properties-common git \
   && rm -rf /var/lib/apt/lists/*
 
