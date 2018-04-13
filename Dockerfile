@@ -17,4 +17,4 @@ RUN apt-get update \
 
 VOLUME ["/root/.zcoin"]
 ENTRYPOINT ["/usr/local/bin/zcoind"]
-EXPOSE 18888 8888 18168 8168
+EXPOSE 8168
