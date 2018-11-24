@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-ARG RELEASE_TAG=v0.13.7.1
+ARG RELEASE_TAG=v0.13.7.2
 
 RUN apt-get update \
   && apt-get install -qq -y build-essential \
